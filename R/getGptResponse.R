@@ -90,7 +90,7 @@ getGptApiResponse <- function(token,
     # Create the body list with proper structure for responses API
     body.list <- list(
       model = model,
-      messages = list(
+      input = list(
         list(
           role = "user",
           content = prompt
