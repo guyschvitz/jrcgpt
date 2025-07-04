@@ -137,12 +137,3 @@ getGptApiResponse <- function(token,
   return(httr::content(response, "parsed", encoding = "UTF-8"))
 }
 
-# Your example usage (updated to remove prompt.id):
-response2 <- getGptApiResponse(
-  token = openai.api.key$key,
-  base.url = "https://api.openai.com",
-  model = "gpt-4o",
-  api.type = "responses",
-  prompt = "What is the current inflation rate in the EU?",
-  tools = c("web_search")
-)
