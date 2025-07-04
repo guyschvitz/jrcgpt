@@ -2,4 +2,5 @@
 
 export(addGptMessage)
 export(getGptResponse)
+export(getGptResponseText)
 export(startGptChat)
