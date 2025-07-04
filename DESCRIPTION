@@ -1,16 +1,19 @@
 Package: jrcgpt
 Type: Package
-Title: What the Package Does (Title Case)
+Title: GPT API Client developed for JRC Infrastructure
 Version: 0.1.0
 Authors@R: c(
     person(
-      "Jane", "Doe",
-      email = "jane@example.com",
+      "Guy", "Schvitz",
+      email = "guy.schvitz@ec.europa.eu",
       role = c("aut", "cre")
     )
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
-License: What license is it under?
+Description: Helper functions to interact with the GPT API infrastructure of the Joint Research Centre (JRC), including functions to start and update chat messages, send requests, and extract response content. While this package is designed for JRC's corporate GPT services, the functions may also work with other compatible GPT endpoints.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Imports:
+    httr,
+    jsonlite
+RoxygenNote: 7.3.1
