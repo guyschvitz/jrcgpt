@@ -26,8 +26,8 @@ messages <- addGptMessage(messages, "What is the capital of France?")
 # Send request
 response <- getGptResponse(
   token = "YOUR_TOKEN",
-  base.url = "https://your.jrc.gpt.endpoint",
-  model = "gpt-35-turbo-0613",
+  base.url = "https://api-gpt.jrc.ec.europa.eu/",
+  model = "gpt-4o",
   messages = messages
 )
 
