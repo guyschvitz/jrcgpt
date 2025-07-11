@@ -13,6 +13,20 @@
 #' }
 #'
 #' @export
-getGptResponseText <- function(gpt.response) {
-  return(gpt.response$choices[[1]]$message$content)
+getGptResponseText <-  function(gpt.response) {
+  texts <- character()
+  # Guard against missing resp$output
+  if (!is.list(gpt.response) || is.null(gpt.response$output)) return(texts)
+  for (out in gpt.response$output) {
+    # each out$content should be a list of messages
+    if (is.list(out$content)) {
+      for (msg in out$content) {
+        if (!is.null(msg$text)) {
+          texts <- c(texts, msg$text)
+        }
+      }
+    }
+  }
+  return(texts)
 }
+

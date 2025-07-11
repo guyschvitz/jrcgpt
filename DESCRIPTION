@@ -1,7 +1,7 @@
 Package: jrcgpt
 Type: Package
 Title: GPT API Client developed for JRC Infrastructure
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: c(
     person(
       "Guy", "Schvitz",
