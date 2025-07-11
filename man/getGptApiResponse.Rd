@@ -12,6 +12,7 @@ getGptApiResponse(
   messages = NULL,
   prompt = NULL,
   prompt.id = NULL,
+  instructions = NULL,
   tools = NULL,
   max.tokens = 1024,
   temperature = NULL,
@@ -28,7 +29,7 @@ getGptApiResponse(
 
 \item{base.url}{Character. Base URL of the API endpoint (e.g., "https://api.openai.com").}
 
-\item{model}{Character. Model identifier to use (e.g., "gpt-4o").}
+\item{model}{Character. Model identifier to use (e.g., "gpt-4o", "o1-deep-research").}
 
 \item{api.type}{Character. API type to use: "completions" or "responses".}
 
@@ -37,6 +38,8 @@ getGptApiResponse(
 \item{prompt}{Character. Prompt text for responses API.}
 
 \item{prompt.id}{Character. Unique ID for the prompt (responses API).}
+
+\item{instructions}{Character. Text for the system prompt (responses API).}
 
 \item{tools}{Character vector. Tools to enable for responses API (e.g., c("web_search")).}
 
