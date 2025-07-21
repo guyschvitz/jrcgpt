@@ -96,14 +96,14 @@ getGptApiResponse <- function(token,
 
       # Deep research models require specific tools
       if (is.null(tools) || length(tools) == 0) {
-        # Default to web_search_preview if no tools specified
-        body.list$tools <- list(list(type = "web_search_preview"))
-        cat("Deep research model detected: automatically enabling web_search_preview tool\n")
+        # Default to web_search if no tools specified
+        body.list$tools <- list(list(type = "web_search"))
+        cat("Deep research model detected: automatically enabling web_search tool\n")
       } else {
         # Validate that required tools are present
-        valid_tools <- c("web_search_preview", "mcp")
+        valid_tools <- c("web_search", "mcp")
         if (!any(tools %in% valid_tools)) {
-          stop("Deep research models require at least one of 'web_search_preview' or 'mcp' tools.")
+          stop("Deep research models require at least one of 'web_search' or 'mcp' tools.")
         }
         body.list$tools <- lapply(tools, \(t) list(type = t))
       }
@@ -153,14 +153,14 @@ getGptApiResponse <- function(token,
     } else {
       # Deep research models: tools are required
       if (is.null(tools) || length(tools) == 0) {
-        # Default to web_search_preview if no tools specified
-        body.list$tools <- list(list(type = "web_search_preview"))
-        cat("Deep research model detected: automatically enabling web_search_preview tool\n")
+        # Default to web_searchif no tools specified
+        body.list$tools <- list(list(type = "web_search"))
+        cat("Deep research model detected: automatically enabling web_search tool\n")
       } else {
         # Validate that required tools are present
-        valid_tools <- c("web_search_preview", "mcp")
+        valid_tools <- c("web_search", "mcp")
         if (!any(tools %in% valid_tools)) {
-          stop("Deep research models require at least one of 'web_search_preview' or 'mcp' tools.")
+          stop("Deep research models require at least one of 'web_search' or 'mcp' tools.")
         }
         body.list$tools <- lapply(tools, \(t) list(type = t))
       }
