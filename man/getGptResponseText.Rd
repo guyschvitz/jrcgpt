@@ -4,21 +4,32 @@
 \alias{getGptResponseText}
 \title{Extract Text Content from a GPT API Response}
 \usage{
-getGptResponseText(gpt.response)
+getGptResponseText(gpt.response, endpoint.type = "responses")
 }
 \arguments{
 \item{gpt.response}{List. The response object returned by \code{getGptResponse()}.}
+
+\item{endpoint.type}{Character. Either "responses" (default) or "completions"
+to specify which API endpoint format to parse.}
 }
 \value{
-Character. The text content of the first choice in the response.
+Character. The text content from the response. For "responses" endpoint,
+  returns a vector of all text content found. For "completions" endpoint,
+  returns the content of the first choice.
 }
 \description{
 Retrieves the generated text content from a GPT API response object.
+Supports both "responses" and "completions" API endpoint formats.
 }
 \examples{
 \dontrun{
+# For responses API
 response <- getGptResponse(token, base.url, model, messages)
-text <- getGptResponseText(response)
+text <- getGptResponseText(response, "responses")
+
+# For completions API
+completion <- getGptCompletion(token, base.url, model, prompt)
+text <- getGptResponseText(completion, "completions")
 }
 
 }
