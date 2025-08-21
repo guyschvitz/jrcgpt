@@ -66,7 +66,7 @@ getGptApiResponse <- function(token,
 
     # Add parameters based on model type
     if (!is.deep.research && !is.reasoning) {
-      body.list$max_tokens <- max.tokens
+      body.list$max_completion_tokens <- max.tokens
       body.list$temperature <- if (!is.null(temperature)) temperature else 1
       body.list$stream <- stream
       body.list$top_p <- top.p
