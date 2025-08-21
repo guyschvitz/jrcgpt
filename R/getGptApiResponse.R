@@ -21,8 +21,12 @@
 #' @param presence.penalty Numeric. Presence penalty (default: 0).
 #' @param stop Character vector. Stop sequences for completions API.
 #' @param timeout Numeric. Request timeout in seconds (default: 60).
+#' @param max.retries Integer. Maximum number of retry attempts (default: 3).
+#' @param retry.delay Numeric. Base delay between retries in seconds (default: 1).
+#' @param retry.backoff Logical. Whether to use exponential backoff for retries (default: TRUE).
 #'
 #' @return Parsed API response as list.
+#' @importFrom httr2 request req_headers req_body_json req_timeout req_retry req_perform resp_is_error resp_status resp_body_json
 #' @export
 getGptApiResponse <- function(token,
                               base.url,
@@ -42,7 +46,10 @@ getGptApiResponse <- function(token,
                               frequency.penalty = 0,
                               presence.penalty = 0,
                               stop = NULL,
-                              timeout = 60) {
+                              timeout = 60,
+                              max.retries = 3,
+                              retry.delay = 1,
+                              retry.backoff = TRUE) {
 
   # Basic validation
   api.type <- match.arg(api.type)
@@ -66,7 +73,7 @@ getGptApiResponse <- function(token,
 
     # Add parameters based on model type
     if (!is.deep.research && !is.reasoning) {
-      body.list$max_completion_tokens <- max.tokens
+      body.list$max_tokens <- max.tokens
       body.list$temperature <- if (!is.null(temperature)) temperature else 1
       body.list$stream <- stream
       body.list$top_p <- top.p
@@ -119,26 +126,71 @@ getGptApiResponse <- function(token,
     if (!is.null(prompt.id)) body.list$prompt_id <- prompt.id
   }
 
-  # Convert to JSON and send request
-  json.body <- jsonlite::toJSON(body.list, auto_unbox = TRUE, pretty = FALSE)
-
-  cat("Sending JSON body:\n", json.body, "\n")
-
-  response <- httr::POST(
-    url = url,
-    body = json.body,
-    httr::add_headers(
+  # Build httr2 request with retry logic
+  req <- httr2::request(url) |>
+    httr2::req_headers(
       Authorization = paste("Bearer", token),
       `Content-Type` = "application/json"
-    ),
-    httr::timeout(timeout)
-  )
+    ) |>
+    httr2::req_body_json(body.list) |>
+    httr2::req_timeout(timeout)
 
-  # Let OpenAI handle error messages - just check if request failed
-  if (httr::http_error(response)) {
-    error.content <- httr::content(response, "text", encoding = "UTF-8")
-    stop(paste("API request failed with status", httr::status_code(response), ":", error.content))
+  # Add retry logic with user feedback
+  if (max.retries > 0) {
+    # Define which status codes should trigger a retry
+    transient_errors <- c(429, 500, 502, 503, 504)
+
+    # Set up backoff strategy with logging
+    if (retry.backoff) {
+      # Exponential backoff: 1s, 2s, 4s, 8s...
+      backoff_fn <- function(i) {
+        delay <- retry.delay * (2 ^ (i - 1))
+        message(sprintf("API request failed (attempt %d/%d). Retrying in %s seconds...",
+                        i, max.retries + 1, delay))
+        return(delay)
+      }
+    } else {
+      # Fixed delay
+      backoff_fn <- function(i) {
+        message(sprintf("API request failed (attempt %d/%d). Retrying in %s seconds...",
+                        i, max.retries + 1, retry.delay))
+        return(retry.delay)
+      }
+    }
+
+    req <- req |>
+      httr2::req_retry(
+        max_tries = max.retries + 1,  # +1 because httr2 counts initial attempt
+        backoff = backoff_fn,
+        is_transient = function(resp) {
+          status <- httr2::resp_status(resp)
+          if (status %in% transient_errors) {
+            message(sprintf("API returned status %d, will retry...", status))
+            return(TRUE)
+          }
+          return(FALSE)
+        }
+      )
   }
 
-  return(httr::content(response, "parsed", encoding = "UTF-8"))
+  # Perform the request with progress feedback
+  message("Sending API request...")
+  tryCatch({
+    response <- httr2::req_perform(req)
+  }, error = function(e) {
+    if (grepl("Timeout", e$message)) {
+      stop(paste("API request timed out after", timeout, "seconds. Consider increasing the timeout parameter or checking network connectivity."))
+    } else {
+      stop(paste("API request failed after", max.retries + 1, "attempts:", e$message))
+    }
+  })
+
+  # Check for errors
+  if (httr2::resp_is_error(response)) {
+    error.content <- httr2::resp_body_string(response)
+    stop(paste("API request failed with status", httr2::resp_status(response), ":", error.content))
+  }
+
+  # Return parsed response
+  return(httr2::resp_body_json(response))
 }

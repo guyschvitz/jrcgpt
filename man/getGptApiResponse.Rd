@@ -23,7 +23,10 @@ getGptApiResponse(
   frequency.penalty = 0,
   presence.penalty = 0,
   stop = NULL,
-  timeout = 60
+  timeout = 60,
+  max.retries = 3,
+  retry.delay = 1,
+  retry.backoff = TRUE
 )
 }
 \arguments{
@@ -64,6 +67,12 @@ getGptApiResponse(
 \item{stop}{Character vector. Stop sequences for completions API.}
 
 \item{timeout}{Numeric. Request timeout in seconds (default: 60).}
+
+\item{max.retries}{Integer. Maximum number of retry attempts (default: 3).}
+
+\item{retry.delay}{Numeric. Base delay between retries in seconds (default: 1).}
+
+\item{retry.backoff}{Logical. Whether to use exponential backoff for retries (default: TRUE).}
 }
 \value{
 Parsed API response as list.
